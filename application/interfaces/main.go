@@ -1,0 +1,5 @@
+package interfaces
+
+func InitInterfaces() {
+
+}

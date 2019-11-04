@@ -1,0 +1,78 @@
+{
+  "db_host": "127.0.0.1",
+  "db_port": "3306",
+  "db_username": "root",
+  "db_password": "root",
+  "db_name": "vhake_project",
+  "qiniudoman": "http://images.vhake.com/",
+  "restful_port": ":8888",
+  "vhake_cloud": {
+    "ip": "",
+    "port": "",
+    "path": "",
+    "sub": [],
+    "pub": [],
+    "uploader_url": "",
+    "otg_url": ""
+  },
+  "mqtt_01": {
+    "ip": "",
+    "port": "",
+    "path": "",
+    "sub": [],
+    "pub": [],
+    "is_open": 0
+  },
+  "mqtt_02": {
+    "ip": "",
+    "port": "",
+    "path": "",
+    "sub": [],
+    "pub": [],
+    "is_open": 0
+  },
+  "mqtt_03": {
+    "ip": "",
+    "port": "",
+    "path": "",
+    "sub": [],
+    "pub": [],
+    "is_open": 0
+  },
+  "tcp_01": {
+    "ip": "",
+    "port": "",
+    "config": "",
+    "is_open": 0
+  },
+  "tcp_02": {
+    "ip": "",
+    "port": "",
+    "config": "",
+    "is_open": 0
+  },
+  "tcp_03": {
+    "ip": "",
+    "port": "",
+    "config": "",
+    "is_open": 0
+  },
+  "http_01": {
+    "url": [],
+    "type": "",
+    "loop_time": 0,
+    "is_open": 0
+  },
+  "http_02": {
+    "url": [],
+    "type": "",
+    "loop_time": 0,
+    "is_open": 0
+  },
+  "http_03": {
+    "url": [],
+    "type": "",
+    "loop_time": 0,
+    "is_open": 0
+  }
+}
