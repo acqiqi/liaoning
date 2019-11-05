@@ -11,7 +11,7 @@ import (
 
 func main() {
 	log.SetFlags(log.Lshortfile | log.LstdFlags) //设置全局log 打印带行数
-	//testAgreement()
+	testAgreement()
 
 	initService()
 }
@@ -23,7 +23,7 @@ func testAgreement() {
 	agreement.Pack.BaseFunc.FuncBeginAddr = 1
 	data := agreement.Pack.GetDOOnOffCode(true)
 	log.Println("begin init")
-	log.Println(data)
+	log.Printf("%x", data)
 }
 
 func initService() {

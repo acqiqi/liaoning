@@ -4,22 +4,23 @@ import (
 	"fmt"
 	"github.com/tarm/serial"
 	"log"
+	"time"
 )
 
 var IsSerialOpen bool = false
 
 var Serial *serial.Port
 
-func Setup() {
+func init() {
 
 	c := &serial.Config{
-		//Name: "/dev/tty.wchusbserial143220",
-		Name: "/dev/ttyS1",
+		Name: "/dev/tty.usbserial-146410",
+		//Name: "/dev/ttyS1",
 
-		Baud:     9600,
+		Baud:     115200,
 		Parity:   serial.ParityNone,
 		StopBits: serial.Stop1,
-		Size:     7}
+		Size:     8}
 	var err error
 	Serial, err = serial.OpenPort(c)
 	if err != nil {
@@ -28,6 +29,7 @@ func Setup() {
 	} else {
 		IsSerialOpen = true
 	}
+	go LoopRead()
 }
 
 func SerialWrite(data []byte) {
@@ -39,13 +41,23 @@ func SerialWrite(data []byte) {
 	fmt.Print(n)
 }
 
+func LoopRead() {
+	for i := 0; i < 100000; i++ {
+		time.Sleep(time.Millisecond * 100)
+		SerialRead()
+	}
+
+}
+
 func SerialRead() (data []byte) {
+
 	buf := make([]byte, 128)
 	n, err := Serial.Read(buf)
 	if err != nil {
 		log.Println(err)
 		IsSerialOpen = false
 	}
-	log.Printf("%q", buf[:n])
+	fmt.Printf("%s", buf[:n])
+	//log.Printf("%s", buf[:n])
 	return buf
 }
