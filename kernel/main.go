@@ -3,7 +3,7 @@ package kernel
 import (
 	"log"
 	_ "vgateway/kernel/config"
-	_ "vgateway/kernel/serial"
+	//_ "vgateway/kernel/serial"
 )
 
 func init() {
