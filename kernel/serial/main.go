@@ -14,7 +14,7 @@ var Serial *serial.Port
 func init() {
 
 	c := &serial.Config{
-		Name: "/dev/tty.usbserial-146410",
+		Name: "/dev/ttymxc2",
 		//Name: "/dev/ttyS1",
 
 		Baud:     115200,
