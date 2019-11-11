@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/eclipse/paho.mqtt.golang"
 	"github.com/pkg/errors"
+	"log"
 	"vgateway/kernel/serial"
 	"vgateway/library/agreement/driver/melsecfxserial"
 )
@@ -23,9 +24,20 @@ func SubscribeCallback(client mqtt.Client, msg mqtt.Message) {
 	data := msg.Payload()
 	str := string(data)
 
-	cdata := melsecfxserial.BuildWriteBoolPacket(str, true)
-	serial.SerialWrite(cdata)
+	//cdata,_ := melsecfxserial.BuildWriteBoolPacket(str, true)
+	//cdata ,_ := melsecfxserial.BuildWriteWordCommand(str,[]byte{0x31,0x31,0x31,0x31,0x31,0x31,0x31,0x31,0x31,0x31,0x31,0x31})
+	cdata, _ := melsecfxserial.BuildReadWordCommand(str, 10)
+	log.Println(cdata)
 
+	serial.SerialFlush()      //清空接收区
+	serial.SerialWrite(cdata) //写入数据
+
+	callbackdata, err := serial.ReadSerialOneData()
+	if err != nil {
+		log.Println("ganga")
+	} else {
+		log.Println(callbackdata)
+	}
 }
 
 // 新增订阅

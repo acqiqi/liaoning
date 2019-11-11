@@ -14,6 +14,10 @@ func main() {
 	log.SetFlags(log.Lshortfile | log.LstdFlags) //设置全局log 打印带行数
 	//testAgreement()
 	//melsecfxserial.FxCalculateWordStartAddress("c100")
+	var buf = make([]byte, 10)
+	buf[0] = 0x30
+	buf[1] = 0x30
+	log.Println(buf)
 	initService()
 }
 

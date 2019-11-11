@@ -18,13 +18,28 @@ func BuildAsciiBytesFromX2(value byte) (ret []byte) {
 }
 
 /// <summary>
-/// 从ushort构建一个ASCII格式的数据内容
+/// 从byte构建一个ASCII格式的数据内容
 /// </summary>
 /// <param name="value">数据</param>
 /// <returns>ASCII格式的字节数组</returns>
 func BuildAsciiBytesFromX4(value uint) (ret []byte) {
 	ss := fmt.Sprintf("%04X", value)
 	ret = []byte(ss)
+	return
+}
+
+/// <summary>
+/// 从字节数组构建一个ASCII格式的数据内容
+/// </summary>
+/// <param name="value">字节信息</param>
+/// <returns>ASCII格式的地址</returns>
+func BuildAsciiBytesFromAscci(value []byte) (base []byte) {
+	buffer := make([]byte, len(value)*2)
+	for i := 0; i < len(value); i++ {
+		buffer[i*2] = BuildAsciiBytesFromX2(value[i])[0]
+		buffer[i*2+1] = BuildAsciiBytesFromX2(value[i])[1]
+	}
+	base = buffer
 	return
 }
 

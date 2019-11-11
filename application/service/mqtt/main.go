@@ -5,7 +5,7 @@ import (
 	"github.com/eclipse/paho.mqtt.golang"
 	"log"
 	"os"
-	"vmc/common"
+	"vgateway/common"
 )
 
 var Mqttclient mqtt.Client

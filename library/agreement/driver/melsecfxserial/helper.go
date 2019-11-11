@@ -1,14 +1,14 @@
 package melsecfxserial
 
 import (
+	"bytes"
 	"errors"
-	"fmt"
 	"log"
 	"strconv"
 )
 
 /// <summary>
-/// 生成位写入的数据报文信息，该报文可直接用于发送串口给PLC
+/// 生成位写入的数据报文信息，该报文可直接用于发送串口给PLC 主要是bool类型
 /// </summary>
 /// <param name="address">地址信息，每个地址存在一定的范围，需要谨慎传入数据。举例：M10,S10,X5,Y10,C10,T10</param>
 /// <param name="value"><c>True</c>或是<c>False</c></param>
@@ -72,7 +72,7 @@ func BuildWriteBoolPacket(address string, value bool) (base []byte, err error) {
 }
 
 /// <summary>
-/// 根据类型地址长度确认需要读取的指令头
+/// 根据类型地址长度确认需要读取的指令头  主要是bool类型
 /// </summary>
 /// <param name="address">起始地址</param>
 /// <param name="length">bool数组长度</param>
@@ -99,9 +99,92 @@ func BuildReadBoolCommand(address string, length uint) (cmd []byte, c3 int, err 
 	_PLCCommand[7] = BuildAsciiBytesFromX2(byte(length2))[1]
 	_PLCCommand[8] = 0x03              // ETX
 	crc := FxCalculateCRC(_PLCCommand) // CRC
-	_PLCCommand[7] = crc[9]
-	_PLCCommand[8] = crc[10]
+	_PLCCommand[9] = crc[0]
+	_PLCCommand[10] = crc[1]
 	return _PLCCommand, int(content3), nil
+}
+
+/// <summary>
+/// 根据类型地址长度确认需要读取的指令头 字节型
+/// </summary>
+/// <param name="address">起始地址</param>
+/// <param name="length">长度</param>
+/// <returns>带有成功标志的指令数据</returns>
+func BuildReadWordCommand(address string, length uint) (base []byte, err error) {
+	addressResult, err := FxCalculateWordStartAddress(address)
+	if err != nil {
+		//错误处理
+		return
+	}
+	length = uint(length * 2)
+	startAddress := addressResult.Content1
+	var _PLCCommand = []byte{0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}
+	_PLCCommand[0] = 0x02                                          //报头
+	_PLCCommand[1] = 0x45                                          //指令形式
+	_PLCCommand[2] = 0x30                                          //Read
+	_PLCCommand[3] = 0x30                                          //Read
+	_PLCCommand[4] = BuildAsciiBytesFromX4(startAddress.(uint))[0] //起始地址
+	_PLCCommand[5] = BuildAsciiBytesFromX4(startAddress.(uint))[1] //起始地址
+	_PLCCommand[6] = BuildAsciiBytesFromX4(startAddress.(uint))[2] //起始地址
+	_PLCCommand[7] = BuildAsciiBytesFromX4(startAddress.(uint))[3] //起始地址
+	_PLCCommand[8] = BuildAsciiBytesFromX2(byte(length))[0]        // 读取长度
+	_PLCCommand[9] = BuildAsciiBytesFromX2(byte(length))[1]
+	_PLCCommand[10] = 0x03
+	//_PLCCommand[0] = 0x02;                                                    // STX
+	//_PLCCommand[1] = 0x30;                                                    // Read
+	//_PLCCommand[2] = MelsecHelper.BuildBytesFromData( startAddress )[0];      // 偏移地址
+	//_PLCCommand[3] = MelsecHelper.BuildBytesFromData( startAddress )[1];
+	//_PLCCommand[4] = MelsecHelper.BuildBytesFromData( startAddress )[2];
+	//_PLCCommand[5] = MelsecHelper.BuildBytesFromData( startAddress )[3];
+	//_PLCCommand[6] = MelsecHelper.BuildBytesFromData( (byte)length )[0];      // 读取长度
+	//_PLCCommand[7] = MelsecHelper.BuildBytesFromData( (byte)length )[1];
+	//_PLCCommand[8] = 0x03;                                                    // ETX
+
+	crc := FxCalculateCRC(_PLCCommand) // CRC
+	_PLCCommand[11] = crc[0]
+	_PLCCommand[12] = crc[1]
+	base = _PLCCommand
+	return // Return
+}
+
+/// <summary>
+/// 根据类型地址以及需要写入的数据来生成指令头
+/// </summary>
+/// <param name="address">起始地址</param>
+/// <param name="value">实际的数据信息</param>
+/// <returns>带有成功标志的指令数据</returns>
+func BuildWriteWordCommand(address string, value []byte) (base []byte, err error) {
+	addressResult, err := FxCalculateWordStartAddress(address)
+	if err != nil {
+		//错误处理
+		return
+	}
+	// 字节数据转换成ASCII格式
+	if value != nil {
+		value = BuildAsciiBytesFromAscci(value)
+	}
+	startAddress := addressResult.Content1.(uint)
+	_PLCCommand := make([]byte, bytes.Count(value, nil)+13)
+	_PLCCommand[0] = 0x02                                   //报头
+	_PLCCommand[1] = 0x45                                   //指令形式
+	_PLCCommand[2] = 0x31                                   //Read
+	_PLCCommand[3] = 0x30                                   //Read
+	_PLCCommand[4] = BuildAsciiBytesFromX4(startAddress)[0] // Offect Address
+	_PLCCommand[5] = BuildAsciiBytesFromX4(startAddress)[1]
+	_PLCCommand[6] = BuildAsciiBytesFromX4(startAddress)[2]
+	_PLCCommand[7] = BuildAsciiBytesFromX4(startAddress)[3]
+	_PLCCommand[8] = BuildAsciiBytesFromX2((byte)(bytes.Count(value, nil) / 2))[0] // Read Length
+	_PLCCommand[9] = BuildAsciiBytesFromX2((byte)(bytes.Count(value, nil) / 2))[1]
+	for i := 0; i < len(value); i++ {
+		_PLCCommand[i+10] = value[i]
+	}
+	_PLCCommand[9+bytes.Count(value, nil)] = 0x03
+
+	crc := FxCalculateCRC(_PLCCommand) // CRC
+	_PLCCommand[9+bytes.Count(value, nil)+1] = crc[0]
+	_PLCCommand[9+bytes.Count(value, nil)+2] = crc[1]
+	base = _PLCCommand
+	return
 }
 
 /// <summary>
@@ -109,7 +192,7 @@ func BuildReadBoolCommand(address string, length uint) (cmd []byte, c3 int, err 
 /// </summary>
 /// <param name="address">读取的地址信息</param>
 /// <returns>带起始地址的结果对象</returns>
-func FxCalculateWordStartAddress(address string) (or *OperateResult, err error) {
+func FxCalculateWordStartAddress(address string) (or OperateResult, err error) {
 	// 初步解析，失败就返回
 	analysis, err := FxAnalysisAddress(address)
 	if err != nil {
@@ -135,7 +218,8 @@ func FxCalculateWordStartAddress(address string) (or *OperateResult, err error) 
 	} else {
 		return or, errors.New("不匹配")
 	}
-	fmt.Println(startAddress)
+	log.Println(startAddress)
+	or.Content1 = startAddress
 	return
 }
 

@@ -20,9 +20,11 @@ replace (
 )
 
 require (
+	github.com/eclipse/paho.mqtt.golang v1.2.0
 	github.com/gin-gonic/gin v1.4.0
 	github.com/go-redis/redis v6.15.6+incompatible
 	github.com/jinzhu/gorm v1.9.11
+	github.com/pkg/errors v0.8.1
 	github.com/qiniu/api.v7 v7.2.5+incompatible
 	github.com/qiniu/x v7.0.8+incompatible // indirect
 	github.com/tarm/serial v0.0.0-20180830185346-98f6abe2eb07
