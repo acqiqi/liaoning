@@ -13,7 +13,7 @@ import (
 /// <param name="address">地址信息，每个地址存在一定的范围，需要谨慎传入数据。举例：M10,S10,X5,Y10,C10,T10</param>
 /// <param name="value"><c>True</c>或是<c>False</c></param>
 /// <returns>带报文信息的结果对象</returns>
-func BuildWriteBoolPacket(address string, value bool) (base []byte) {
+func BuildWriteBoolPacket(address string, value bool) (base []byte, err error) {
 	// 初步解析，失败就返回
 	analysis, err := FxAnalysisAddress(address)
 	if err != nil {
@@ -68,7 +68,40 @@ func BuildWriteBoolPacket(address string, value bool) (base []byte) {
 	_PLCCommand[7] = crc[0]
 	_PLCCommand[8] = crc[1]
 
-	return _PLCCommand
+	return _PLCCommand, nil
+}
+
+/// <summary>
+/// 根据类型地址长度确认需要读取的指令头
+/// </summary>
+/// <param name="address">起始地址</param>
+/// <param name="length">bool数组长度</param>
+/// <returns>带有成功标志的指令数据</returns>
+func BuildReadBoolCommand(address string, length uint) (cmd []byte, c3 int, err error) {
+	staraddress, content1, content3, err := FxCalculateBoolStartAddress(address)
+	if err != nil {
+		//错误处理
+		return
+	}
+
+	// 计算下实际需要读取的数据长度
+	length2 := (uint(content1)+length-1)/8 - (uint(content1) / 8) + 1
+
+	startAddress := staraddress
+	var _PLCCommand = []byte{0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}
+	_PLCCommand[0] = 0x02                                   // STX
+	_PLCCommand[1] = 0x30                                   // Read
+	_PLCCommand[2] = BuildAsciiBytesFromX4(startAddress)[0] // 偏移地址
+	_PLCCommand[3] = BuildAsciiBytesFromX4(startAddress)[1]
+	_PLCCommand[4] = BuildAsciiBytesFromX4(startAddress)[2]
+	_PLCCommand[5] = BuildAsciiBytesFromX4(startAddress)[3]
+	_PLCCommand[6] = BuildAsciiBytesFromX2(byte(length2))[0] // 读取长度
+	_PLCCommand[7] = BuildAsciiBytesFromX2(byte(length2))[1]
+	_PLCCommand[8] = 0x03              // ETX
+	crc := FxCalculateCRC(_PLCCommand) // CRC
+	_PLCCommand[7] = crc[9]
+	_PLCCommand[8] = crc[10]
+	return _PLCCommand, int(content3), nil
 }
 
 /// <summary>
@@ -104,6 +137,47 @@ func FxCalculateWordStartAddress(address string) (or *OperateResult, err error) 
 	}
 	fmt.Println(startAddress)
 	return
+}
+
+/// <summary>
+/// 返回读取的地址及长度信息，以及当前的偏置信息
+/// </summary><param name="address">读取的地址信息</param>
+/// <returns>带起始地址的结果对象</returns>
+func FxCalculateBoolStartAddress(address string) (staraddr uint, content1 int64, b8 uint, err error) {
+	// 初步解析，失败就返回
+	analysis, err := FxAnalysisAddress(address)
+	if err != nil {
+		log.Println(err.Error())
+		return
+	}
+	// 二次解析
+	startAddress := uint(analysis.Content1.(int64))
+
+	if analysis.MelsecMCDataType == *MelsecMCM {
+		if startAddress >= 8000 {
+			startAddress = (startAddress-8000)/8 + 0x01E0
+		} else {
+			startAddress = startAddress/8 + 0x0100
+		}
+	} else if analysis.MelsecMCDataType == *MelsecMCX {
+		startAddress = startAddress/8 + 0x0080
+	} else if analysis.MelsecMCDataType == *MelsecMCY {
+		startAddress = startAddress/8 + 0x00A0
+	} else if analysis.MelsecMCDataType == *MelsecMCS {
+		startAddress = startAddress/8 + 0x0000
+	} else if analysis.MelsecMCDataType == *MelsecMCCS {
+		startAddress += startAddress/8 + 0x01C0
+	} else if analysis.MelsecMCDataType == *MelsecMCCC {
+		startAddress += startAddress/8 + 0x03C0
+	} else if analysis.MelsecMCDataType == *MelsecMCTS {
+		startAddress += startAddress/8 + 0x00C0
+	} else if analysis.MelsecMCDataType == *MelsecMCTC {
+		startAddress += startAddress/8 + 0x02C0
+	} else {
+		return staraddr, content1, b8, errors.New("地址错误")
+	}
+
+	return startAddress, analysis.Content1.(int64), uint(analysis.Content1.(int64) % 8), nil
 }
 
 /// <summary>
