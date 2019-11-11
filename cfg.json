@@ -6,6 +6,8 @@
   "db_name": "vhake_project",
   "qiniudoman": "http://images.vhake.com/",
   "restful_port": ":8888",
+  "mqtt_server":"tcp://47.104.162.189:1883",
+  "mqtt_client_id":"VhakeMqttDTU1",
   "vhake_cloud": {
     "ip": "",
     "port": "",

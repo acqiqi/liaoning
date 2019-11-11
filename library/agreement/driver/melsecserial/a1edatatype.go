@@ -1,4 +1,4 @@
-package driver
+package melsecserial
 
 //--------------------------三菱PLC的数据类型，此处包含了几个常用的类型--------------------------
 type MelsecA1EDataType struct {
@@ -24,29 +24,29 @@ func (this *MelsecA1EDataType) Init(code []byte, dataType byte, asciiCode string
 }
 
 // X输入寄存器
-var MelsecX = new(MelsecA1EDataType)
+var MelsecA1EX = new(MelsecA1EDataType)
 
 // Y输出寄存器
-var MelsecY = new(MelsecA1EDataType)
+var MelsecA1EY = new(MelsecA1EDataType)
 
 // M中间寄存器
-var MelsecM = new(MelsecA1EDataType)
+var MelsecA1EM = new(MelsecA1EDataType)
 
 // S状态寄存器
-var MelsecS = new(MelsecA1EDataType)
+var MelsecA1ES = new(MelsecA1EDataType)
 
 // D数据寄存器
-var MelsecD = new(MelsecA1EDataType)
+var MelsecA1ED = new(MelsecA1EDataType)
 
 // R文件寄存器
-var MelsecR = new(MelsecA1EDataType)
+var MelsecA1ER = new(MelsecA1EDataType)
 
 func init() {
-	//寄存器初始化
-	MelsecX.Init([]byte{0x58, 0x20}, 0x01, "X*", 8)
-	MelsecY.Init([]byte{0x59, 0x20}, 0x01, "Y*", 8)
-	MelsecX.Init([]byte{0x4D, 0x20}, 0x01, "M*", 10)
-	MelsecX.Init([]byte{0x53, 0x20}, 0x01, "S*", 10)
-	MelsecX.Init([]byte{0x44, 0x20}, 0x00, "D*", 10)
-	MelsecX.Init([]byte{0x52, 0x20}, 0x00, "R*", 10)
+	//type 初始化
+	MelsecA1EX.Init([]byte{0x58, 0x20}, 0x01, "X*", 8)
+	MelsecA1EY.Init([]byte{0x59, 0x20}, 0x01, "Y*", 8)
+	MelsecA1EX.Init([]byte{0x4D, 0x20}, 0x01, "M*", 10)
+	MelsecA1EX.Init([]byte{0x53, 0x20}, 0x01, "S*", 10)
+	MelsecA1EX.Init([]byte{0x44, 0x20}, 0x00, "D*", 10)
+	MelsecA1EX.Init([]byte{0x52, 0x20}, 0x00, "R*", 10)
 }

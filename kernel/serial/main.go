@@ -14,13 +14,13 @@ var Serial *serial.Port
 func init() {
 
 	c := &serial.Config{
-		Name: "/dev/ttymxc2",
-		//Name: "/dev/ttyS1",
+		//Name: "/dev/tty.wchusbserial146420",
+		Name: "/dev/ttyS0",
 
-		Baud:     115200,
-		Parity:   serial.ParityNone,
+		Baud:     9600,
+		Parity:   serial.ParityEven,
 		StopBits: serial.Stop1,
-		Size:     8}
+		Size:     7}
 	var err error
 	Serial, err = serial.OpenPort(c)
 	if err != nil {
@@ -57,7 +57,7 @@ func SerialRead() (data []byte) {
 		log.Println(err)
 		IsSerialOpen = false
 	}
-	fmt.Printf("%s", buf[:n])
+	fmt.Printf("%x", buf[:n])
 	//log.Printf("%s", buf[:n])
 	return buf
 }

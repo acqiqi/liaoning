@@ -2,6 +2,7 @@ package agreement
 
 import (
 	"encoding/hex"
+	"log"
 )
 
 type MitsubishiFX struct {
@@ -56,6 +57,7 @@ func (this MitsubishiFX) GetDOOnOffCode(driveAddr uint16, funcaddr uint32, onOff
 	for i := 1; i < 7; i++ {
 		uSum = uSum + uint32(uSend[i])
 	}
+	log.Println(uSum)
 	uTmp = uSum & 0x000f
 	if uint8(uTmp) < 10 {
 		uSend[8] = uint8(uTmp) + 0x30
