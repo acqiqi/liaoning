@@ -1,7 +1,6 @@
 package melsecfxserial
 
 import (
-	"bytes"
 	"fmt"
 	"log"
 )
@@ -50,10 +49,9 @@ func BuildAsciiBytesFromAscci(value []byte) (base []byte) {
 /// <returns>校验之后的数据</returns>
 func FxCalculateCRC(data []byte) (ret []byte) {
 	sum := uint(0)
-	for i := 1; i < bytes.Count(data, nil)-2; i++ {
+	for i := 1; i < len(data)-2; i++ {
 		sum = sum + uint(data[i])
 	}
-	log.Println(sum)
 	return BuildAsciiBytesFromX2(byte(sum))
 }
 
@@ -64,11 +62,73 @@ func FxCalculateCRC(data []byte) (ret []byte) {
 /// <returns>是否成功</returns>
 func CheckCRC(data []byte) (isCheck bool) {
 	crc := FxCalculateCRC(data)
-	if crc[0] != data[bytes.Count(data, nil)-2] {
+	log.Println(crc)
+	if crc[0] != data[len(data)-2] {
 		return false
 	}
-	if crc[1] != data[bytes.Count(data, nil)-1] {
+	if crc[1] != data[len(data)-1] {
 		return false
 	}
 	return true
+}
+
+/// <summary>
+/// 从Byte数组中提取位数组，length代表位数 ->
+/// Extracts a bit array from a byte array, length represents the number of digits
+/// </summary>
+/// <param name="InBytes">原先的字节数组</param>
+/// <param name="length">想要转换的长度，如果超出自动会缩小到数组最大长度</param>
+/// <returns>转换后的bool数组</returns>
+/// <example>
+/// <code lang="cs" source="HslCommunication_Net45.Test\Documentation\Samples\BasicFramework\SoftBasicExample.cs" region="ByteToBoolArray" title="ByteToBoolArray示例" />
+/// </example>
+func ByteToBoolArray(InBytes []byte, length int) (base []bool) {
+	if InBytes == nil {
+		return nil
+	}
+
+	if length > (len(InBytes) * 8) {
+		length = len(InBytes) * 8
+	}
+	buffer := make([]bool, length)
+
+	for i := 0; i < length; i++ {
+		index := i / 8
+		offect := i % 8
+
+		temp := byte(0)
+		switch offect {
+		case 0:
+			temp = 0x01
+			break
+		case 1:
+			temp = 0x02
+			break
+		case 2:
+			temp = 0x04
+			break
+		case 3:
+			temp = 0x08
+			break
+		case 4:
+			temp = 0x10
+			break
+		case 5:
+			temp = 0x20
+			break
+		case 6:
+			temp = 0x40
+			break
+		case 7:
+			temp = 0x80
+			break
+		default:
+			break
+		}
+
+		if (InBytes[index] & temp) == temp {
+			buffer[i] = true
+		}
+	}
+	return buffer
 }

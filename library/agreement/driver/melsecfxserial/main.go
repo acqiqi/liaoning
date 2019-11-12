@@ -1,5 +1,10 @@
 package melsecfxserial
 
+import (
+	"errors"
+	"vgateway/kernel/serial"
+)
+
 /// <summary>
 /// 三菱的串口通信的对象，适用于读取FX系列的串口数据，支持的类型参考文档说明
 /// </summary>
@@ -116,4 +121,103 @@ package melsecfxserial
 /// </list>
 
 type MelsecFxSerial struct {
+}
+
+// 操作写bool值
+func WriteBool(address string, status bool) (err error) {
+	if !serial.IsSerialOpen {
+		err = errors.New("请打开串口")
+		return
+	}
+	cdata, err := BuildWriteBoolPacket(address, status)
+	if err != nil {
+		return
+	}
+	serial.SerialFlush()      //清空接收区
+	serial.SerialWrite(cdata) //写入数据
+	// 获取数据
+	callbackdata, err := serial.ReadSerialOneData()
+	if err != nil {
+		err = errors.New("读取超时")
+	}
+	// 检测
+	if err := CheckPlcWriteResponse(callbackdata); err != nil {
+
+		return err
+	}
+	return
+}
+
+// 操作读取bool值
+func ReadBool(address string, length uint) (status []bool, err error) {
+	if !serial.IsSerialOpen {
+		err = errors.New("请打开串口")
+		return
+	}
+	cdata, c3, err := BuildReadBoolCommand(address, length)
+	if err != nil {
+		return
+	}
+	serial.SerialFlush()      //清空接收区
+	serial.SerialWrite(cdata) //写入数据
+	// 获取数据
+	callbackdata, err := serial.ReadSerialOneData()
+	if err != nil {
+		err = errors.New("读取超时")
+	}
+	// 检测
+	if err := CheckPlcReadResponse(callbackdata); err != nil {
+		return nil, err
+	}
+	status = ExtractActualBoolData(callbackdata, c3, length)
+	return
+}
+
+// 操作写bytes
+func WriteBytes(address string, value []byte) (err error) {
+	if !serial.IsSerialOpen {
+		err = errors.New("请打开串口")
+		return
+	}
+	cdata, err := BuildWriteWordCommand(address, value)
+	if err != nil {
+		return
+	}
+	serial.SerialFlush()      //清空接收区
+	serial.SerialWrite(cdata) //写入数据
+	// 获取数据
+	callbackdata, err := serial.ReadSerialOneData()
+	if err != nil {
+		err = errors.New("读取超时")
+	}
+	// 检测
+	if err := CheckPlcWriteResponse(callbackdata); err != nil {
+		return err
+	}
+	return
+}
+
+func ReadBytes(address string, length uint) (base []byte, err error) {
+	if !serial.IsSerialOpen {
+		err = errors.New("请打开串口")
+		return
+	}
+	cdata, err := BuildReadWordCommand(address, length)
+	if err != nil {
+		return
+	}
+	serial.SerialFlush()      //清空接收区
+	serial.SerialWrite(cdata) //写入数据
+	// 获取数据
+	callbackdata, err := serial.ReadSerialOneData()
+	if err != nil {
+		err = errors.New("读取超时")
+	}
+	// 检测
+	if err := CheckPlcReadResponse(callbackdata); err != nil {
+		return nil, err
+	}
+	//提炼数据
+	base = ExtractActualData(callbackdata)
+	return
 }

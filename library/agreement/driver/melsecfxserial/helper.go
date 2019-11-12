@@ -2,6 +2,7 @@ package melsecfxserial
 
 import (
 	"bytes"
+	"encoding/hex"
 	"errors"
 	"log"
 	"strconv"
@@ -349,4 +350,89 @@ func FxAnalysisAddress(address string) (or *OperateResult, err error) {
 	}
 	//处理成功
 	return result, nil
+}
+
+/// <summary>
+/// 检查PLC返回的写入的数据是否是正常的
+/// </summary>
+/// <param name="ack">Plc反馈的数据信息</param>
+/// <returns>检查结果</returns>
+func CheckPlcWriteResponse(ack []byte) (err error) {
+	if len(ack) == 0 {
+		err = errors.New("数据为空")
+		return
+	}
+	if ack[0] == 0x15 {
+		err = errors.New("命令执行失败")
+	}
+	if ack[0] != 0x06 {
+		err = errors.New("返回失败")
+	}
+	return
+}
+
+/// <summary>
+/// 检查PLC返回的读取数据是否是正常的
+/// </summary>
+/// <param name="ack">Plc反馈的数据信息</param>
+/// <returns>检查结果</returns>
+func CheckPlcReadResponse(ack []byte) (err error) {
+	if len(ack) == 0 {
+		err = errors.New("数据为空")
+		return
+	}
+	if ack[0] == 0x15 {
+		err = errors.New("命令执行失败")
+	}
+	if ack[0] != 0x02 {
+		err = errors.New("返回失败")
+	}
+
+	if !CheckCRC(ack) {
+		err = errors.New("校验失败")
+	}
+	return
+}
+
+/// <summary>
+/// 从PLC反馈的数据进行提炼操作
+/// </summary>
+/// <param name="response">PLC反馈的真实数据</param>
+/// <returns>数据提炼后的真实数据</returns>
+func ExtractActualData(response []byte) (base []byte) {
+
+	data := make([]byte, (len(response)-4)/2)
+	for i := 0; i < len(data); i++ {
+		buffer := []byte{0x00, 0x00}
+		buffer[0] = response[i*2+1]
+		buffer[1] = response[i*2+2]
+
+		bf, err := hex.DecodeString(string(buffer))
+		if err == nil {
+			data[i] = bf[0]
+		}
+	}
+	return data
+
+}
+
+/// <summary>
+/// 从PLC反馈的数据进行提炼bool数组操作
+/// </summary>
+/// <param name="response">PLC反馈的真实数据</param>
+/// <param name="start">起始提取的点信息</param>
+/// <param name="length">bool数组的长度</param>
+/// <returns>数据提炼后的真实数据</returns>
+func ExtractActualBoolData(response []byte, start int, length uint) (base []bool) {
+	extraResult := ExtractActualData(response)
+
+	// 转化bool数组
+
+	data := make([]bool, length)
+	array := ByteToBoolArray(extraResult, len(response)*8)
+	for i := 0; i < int(length); i++ {
+		data[i] = array[i+start]
+	}
+	base = data
+	return
 }

@@ -1,11 +1,11 @@
 package mqtt
 
 import (
+	"encoding/hex"
 	"fmt"
 	"github.com/eclipse/paho.mqtt.golang"
 	"github.com/pkg/errors"
 	"log"
-	"vgateway/kernel/serial"
 	"vgateway/library/agreement/driver/melsecfxserial"
 )
 
@@ -24,19 +24,18 @@ func SubscribeCallback(client mqtt.Client, msg mqtt.Message) {
 	data := msg.Payload()
 	str := string(data)
 
-	//cdata,_ := melsecfxserial.BuildWriteBoolPacket(str, true)
-	//cdata ,_ := melsecfxserial.BuildWriteWordCommand(str,[]byte{0x31,0x31,0x31,0x31,0x31,0x31,0x31,0x31,0x31,0x31,0x31,0x31})
-	cdata, _ := melsecfxserial.BuildReadWordCommand(str, 10)
-	log.Println(cdata)
+	if err := melsecfxserial.WriteBytes(str, []byte{0x66, 0x99}); err != nil {
+		log.Println("facu")
+	}
 
-	serial.SerialFlush()      //清空接收区
-	serial.SerialWrite(cdata) //写入数据
-
-	callbackdata, err := serial.ReadSerialOneData()
+	basr, err := melsecfxserial.ReadBytes(str, 2)
 	if err != nil {
-		log.Println("ganga")
+		log.Println(err.Error())
+
+		log.Println("mdzz")
 	} else {
-		log.Println(callbackdata)
+		fmt.Printf("%s", hex.EncodeToString(basr))
+		log.Println("ojbk")
 	}
 }
 

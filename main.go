@@ -1,6 +1,8 @@
 package main
 
 import (
+	"encoding/hex"
+	"fmt"
 	"log"
 	"vgateway/application"
 	"vgateway/common"
@@ -15,9 +17,11 @@ func main() {
 	//testAgreement()
 	//melsecfxserial.FxCalculateWordStartAddress("c100")
 	var buf = make([]byte, 10)
-	buf[0] = 0x30
+	buf[0] = 0x34
 	buf[1] = 0x30
-	log.Println(buf)
+	bb, _ := hex.DecodeString(string(buf))
+	log.Println("11111")
+	fmt.Printf("%x", bb)
 	initService()
 }
 
