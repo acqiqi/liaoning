@@ -1,12 +1,11 @@
 package mqtt
 
 import (
-	"encoding/hex"
 	"fmt"
 	"github.com/eclipse/paho.mqtt.golang"
 	"github.com/pkg/errors"
 	"log"
-	"vgateway/library/agreement/driver/melsecfxserial"
+	"vgateway/library/agreement"
 )
 
 var SubscribeList []string
@@ -24,17 +23,24 @@ func SubscribeCallback(client mqtt.Client, msg mqtt.Message) {
 	data := msg.Payload()
 	str := string(data)
 
-	if err := melsecfxserial.WriteBytes(str, []byte{0x66, 0x99}); err != nil {
-		log.Println("facu")
+	driver := new(agreement.Obj)                           //实例化工厂
+	driver.DriverType = agreement.DriverTypeMelsecFxSerial //使用三菱fx串口
+	driver.SerialNo = agreement.SerialNoPort0              //串口0
+	if err := driver.Init(); err != nil {
+		log.Println("driver init err")
+		return
+	}
+	// 写bool 开关
+	if err := driver.WriteBool(str, true); err != nil {
+		log.Println("err writebool")
 	}
 
-	basr, err := melsecfxserial.ReadBytes(str, 2)
+	basr, err := driver.ReadBool(str, 1)
 	if err != nil {
 		log.Println(err.Error())
-
 		log.Println("mdzz")
 	} else {
-		fmt.Printf("%s", hex.EncodeToString(basr))
+		log.Println(basr)
 		log.Println("ojbk")
 	}
 }

@@ -1,75 +1,54 @@
 package agreement
 
-import "fmt"
-
-type BaseFunc struct {
-	DriveAddr     uint16 //设备地址
-	FuncCode      uint16 //功能码
-	FuncBeginAddr uint32 //寄存器地址 只取一个地址只输入这个
-	FuncEndAddr   uint32 //寄存器结束地址
-}
-
-type DrivePack struct {
-	Config       ConfigPack
-	PushData     []byte
-	CallbackData []byte
-	Obj          interface {
-		GetDoReadCode(driveAddr uint16, funcaddr uint32) (callback []byte)              //获取读DO数据协议
-		DecodeDoReadCode(uData []byte, uAddress uint32) (callback bool)                 //输入数据查询DO开关量 bool
-		GetDOOnOffCode(driveAddr uint16, funcaddr uint32, onOff bool) (callback []byte) //设置DO输出开关
-	}
-	BaseFunc BaseFunc
-}
-
-type ConfigPack struct {
-	DeviceType int //设备类型 PLC私有协议 modbus ambit私有协议等
-	Drive      int //设备类型如果属于plc私有协议 这里输入协议标准
-}
-
-/**
-设备类型 PLC 比较特殊
-*/
-const (
-	DeviceTypePLC          = 0
-	DeviceTypeMODBUSRTU    = 1
-	DeviceTypeMODBUSTCP    = 2
-	DeviceTypeMODBUSASCII  = 3
-	DeviceTypeAMBITPRODUCT = 4
+import (
+	"errors"
+	"vgateway/library/agreement/driver/melsecfxserial"
 )
 
-/**
-驱动模式 PLC Ambit类型需要
-*/
 const (
-	DriveTypeMitsubishiFX = 0
-	DriveTypeMitsubishiQ  = 1
-	DriveTypeSiemensS7    = 2
+	DriverTypeMelsecFxSerial = "MelsecFxSerial"
+
+	SerialNoPort0 = 0
+	SerialNoPort1 = 1
+	SerialNoPort2 = 2
 )
 
-func (this *DrivePack) InitPack() {
-	if this.Config.DeviceType == DeviceTypePLC {
-		this.Obj = new(MitsubishiFX)
+//封装接口
+type IAgreement interface {
+	Begin() (err error)                                              //初始化
+	WriteBool(address string, status bool) (err error)               //写bool
+	ReadBool(address string, length uint) (status []bool, err error) //读bool
+	WriteBytes(address string, value []byte) (err error)             //写bytes
+	ReadBytes(address string, length uint) (base []byte, err error)  //读bytes
+}
+
+type Obj struct {
+	DriverType    string //设备类型
+	DriverAddress string //ip 或者从站地址
+	DriverPort    string //端口号
+	SerialNo      int    //使用串口号 只针对使用串口协议
+	IsOpen        bool   //是否打开
+	IAgreement
+}
+
+//初始化操作
+func init() {
+
+}
+
+//初始化
+func (this *Obj) Init() (err error) {
+
+	//初始化类型
+	switch this.DriverType {
+	case DriverTypeMelsecFxSerial:
+		driver := new(melsecfxserial.MelsecFxSerial)
+		driver.SerialNo = this.SerialNo
+		this.IAgreement = driver
+		break
+	default:
+		return errors.New("设备类型不正确")
 	}
-}
 
-func (this *DrivePack) GetDoReadCode() (data []byte) {
-	data = this.Obj.GetDoReadCode(this.BaseFunc.DriveAddr, this.BaseFunc.FuncBeginAddr)
-	fmt.Println(data)
 	return
-}
-
-func (this *DrivePack) GetDOOnOffCode(onoff bool) (data []byte) {
-	data = this.Obj.GetDOOnOffCode(this.BaseFunc.DriveAddr, this.BaseFunc.FuncBeginAddr, onoff)
-	return
-}
-
-func (this *DrivePack) DecodeDoReadCode(data []byte) (onoff bool) {
-	onoff = this.Obj.DecodeDoReadCode(data, this.BaseFunc.FuncBeginAddr)
-	return
-}
-
-var Pack DrivePack
-
-func Setup() {
-	Pack.InitPack()
 }

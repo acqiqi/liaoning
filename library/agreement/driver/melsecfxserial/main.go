@@ -121,10 +121,15 @@ import (
 /// </list>
 
 type MelsecFxSerial struct {
+	SerialNo int //使用串口号 只针对使用串口协议
+}
+
+func (this *MelsecFxSerial) Begin() (err error) {
+	return
 }
 
 // 操作写bool值
-func WriteBool(address string, status bool) (err error) {
+func (this *MelsecFxSerial) WriteBool(address string, status bool) (err error) {
 	if !serial.IsSerialOpen {
 		err = errors.New("请打开串口")
 		return
@@ -149,7 +154,7 @@ func WriteBool(address string, status bool) (err error) {
 }
 
 // 操作读取bool值
-func ReadBool(address string, length uint) (status []bool, err error) {
+func (this *MelsecFxSerial) ReadBool(address string, length uint) (status []bool, err error) {
 	if !serial.IsSerialOpen {
 		err = errors.New("请打开串口")
 		return
@@ -174,7 +179,7 @@ func ReadBool(address string, length uint) (status []bool, err error) {
 }
 
 // 操作写bytes
-func WriteBytes(address string, value []byte) (err error) {
+func (this *MelsecFxSerial) WriteBytes(address string, value []byte) (err error) {
 	if !serial.IsSerialOpen {
 		err = errors.New("请打开串口")
 		return
@@ -197,7 +202,7 @@ func WriteBytes(address string, value []byte) (err error) {
 	return
 }
 
-func ReadBytes(address string, length uint) (base []byte, err error) {
+func (this *MelsecFxSerial) ReadBytes(address string, length uint) (base []byte, err error) {
 	if !serial.IsSerialOpen {
 		err = errors.New("请打开串口")
 		return

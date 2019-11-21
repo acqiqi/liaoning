@@ -24,7 +24,8 @@ var Serial *serial.Port
 func init() {
 
 	c := &serial.Config{
-		Name: "/dev/tty.wchusbserial146420",
+		Name: "COM7",
+		//Name: "/dev/tty.wchusbserial146420",
 		//Name: "/dev/ttyS0",
 
 		Baud:     9600,
