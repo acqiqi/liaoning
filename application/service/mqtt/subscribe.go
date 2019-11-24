@@ -38,10 +38,8 @@ func SubscribeCallback(client mqtt.Client, msg mqtt.Message) {
 	basr, err := driver.ReadBool(str, 1)
 	if err != nil {
 		log.Println(err.Error())
-		log.Println("mdzz")
 	} else {
 		log.Println(basr)
-		log.Println("ojbk")
 	}
 }
 

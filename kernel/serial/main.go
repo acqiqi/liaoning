@@ -75,7 +75,7 @@ func ReadSerialOneData() (base []byte, err error) {
 func LoopRead() {
 	for true {
 		time.Sleep(time.Millisecond * 100)
-		SerialRead()
+		//SerialRead()
 	}
 
 }
