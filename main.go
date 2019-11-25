@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"hash/crc32"
-	"io"
 	"log"
 	"math/rand"
 	"net"
@@ -209,33 +208,6 @@ func getRandString() string {
 		strBytes[i] = byte(rand.Intn(26) + 97)
 	}
 	return string(strBytes)
-}
-func onMessageReceived(conn *net.TCPConn) {
-	fmt.Printf("heihei")
-	reader := bufio.NewReader(conn)
-	b := []byte(conn.LocalAddr().String() + " Say hello to Server... \n")
-	conn.Write(b)
-	for {
-		msg, err := reader.ReadString('\n')
-		fmt.Println("ReadString")
-		fmt.Println(msg)
-
-		if err != nil || err == io.EOF {
-			fmt.Println(err)
-			break
-		}
-		time.Sleep(time.Second * 2)
-
-		fmt.Println("writing...")
-
-		b := []byte(conn.LocalAddr().String() + " write data to Server... \n")
-		_, err = conn.Write(b)
-
-		if err != nil {
-			fmt.Println(err)
-			break
-		}
-	}
 }
 
 func initService() {
