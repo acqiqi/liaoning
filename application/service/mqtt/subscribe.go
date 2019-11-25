@@ -6,6 +6,7 @@ import (
 	"github.com/pkg/errors"
 	"log"
 	"vgateway/library/agreement"
+	"vgateway/library/agreement/driver/siemenss7tcp"
 )
 
 var SubscribeList []string
@@ -23,24 +24,22 @@ func SubscribeCallback(client mqtt.Client, msg mqtt.Message) {
 	data := msg.Payload()
 	str := string(data)
 
-	driver := new(agreement.Obj)                           //实例化工厂
-	driver.DriverType = agreement.DriverTypeMelsecFxSerial //使用三菱fx串口
-	driver.SerialNo = agreement.SerialNoPort0              //串口0
+	driver := new(agreement.Obj)                         //实例化工厂
+	driver.DriverType = agreement.DriverTypeSiemensS7Tcp //使用西门子TCP通讯协议
+	driver.DriverAddress = "192.168.101.155"             //ip
+	driver.DriverPort = "102"
+	driver.PlcFlag = siemenss7tcp.S200Smart
 	if err := driver.Init(); err != nil {
 		log.Println("driver init err")
 		return
 	}
+	driver.InitDriver() //初始化设备
+
 	// 写bool 开关
 	if err := driver.WriteBool(str, true); err != nil {
 		log.Println("err writebool")
 	}
 
-	basr, err := driver.ReadBool(str, 1)
-	if err != nil {
-		log.Println(err.Error())
-	} else {
-		log.Println(basr)
-	}
 }
 
 // 新增订阅

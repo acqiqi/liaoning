@@ -124,7 +124,7 @@ type MelsecFxSerial struct {
 	SerialNo int //使用串口号 只针对使用串口协议
 }
 
-func (this *MelsecFxSerial) Begin() (err error) {
+func (this *MelsecFxSerial) InitDriver() (err error) {
 	return
 }
 
