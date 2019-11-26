@@ -38,6 +38,7 @@ func SubscribeCallback(client mqtt.Client, msg mqtt.Message) {
 	// 写bool 开关
 	if err := driver.WriteBool(str, true); err != nil {
 		log.Println("err writebool")
+		log.Println(err)
 	}
 
 }

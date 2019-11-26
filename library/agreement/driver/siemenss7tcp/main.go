@@ -76,6 +76,7 @@ func (this *SiemensS7Tcp) WriteBool(address string, status bool) (err error) {
 	if netb[lehcallback] != 0xff {
 		return errors.New("not ok write")
 	}
+
 	return
 }
 

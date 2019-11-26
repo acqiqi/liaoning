@@ -63,7 +63,7 @@ func (this *ClientShortNetworkLink) Read() (data []byte, err error) {
 	}
 	this.Length = 0
 	this.isReadFlag = true
-	time.Sleep(time.Millisecond * 50)
+	time.Sleep(time.Millisecond * 500)
 	//获取数据
 	if this.Length > 0 {
 		//切片
@@ -106,6 +106,8 @@ func (this *ClientShortNetworkLink) onMessageReceived() {
 
 //关闭网络通道
 func (this *ClientShortNetworkLink) Close() {
+	this.TCPConn.CloseRead()
+	this.TCPConn.CloseWrite()
 	this.TCPConn.Close()
 	this.IsOpen = false
 	this.Length = 0

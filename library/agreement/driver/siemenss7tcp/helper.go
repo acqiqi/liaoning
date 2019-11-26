@@ -2,6 +2,7 @@ package siemenss7tcp
 
 import (
 	"errors"
+	"log"
 	"strconv"
 	"strings"
 	"vgateway/kernel/tcp"
@@ -140,41 +141,50 @@ func CalculateAddressStarted(address string) (base int32) {
 	}
 }
 
+var tcps *tcp.ClientShortNetworkLink = new(tcp.ClientShortNetworkLink)
+
 // tcp短连接通讯发送数据并接收
 func WriteShortTcpBytes(data []byte, ip string, port string) (base []byte, err error) {
-	tcps := new(tcp.ClientShortNetworkLink)
+	//tcps := tcp.ClientShortNetworkLink{}
+	//tcps.Close()
 	tcps.ServerIp = ip
 	tcps.ServerPort = port
 	if err := tcps.Init(); err != nil {
+		log.Println("init?")
 		return nil, err
 	}
 	//写第一个头文件
 
 	if err := tcps.Write(plcHead1); err != nil {
+		tcps.Close()
 		return nil, err
 	}
 	_, err = tcps.Read()
 	if err != nil {
+		tcps.Close()
 		return
 	}
 	//写第二个头文件
 	if err := tcps.Write(plcHead2); err != nil {
+		tcps.Close()
 		return nil, err
 	}
 	_, err = tcps.Read()
 	if err != nil {
+		tcps.Close()
 		return
 	}
 	//写报文
 	if err := tcps.Write(data); err != nil {
+		tcps.Close()
 		return nil, err
 	}
 	bs, err := tcps.Read()
 	if err != nil {
+		tcps.Close()
 		return
 	}
-	if err != nil {
-		return nil, err
-	}
+
+	tcps.Close()
 	return bs, nil
 }
