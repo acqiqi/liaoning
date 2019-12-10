@@ -11,7 +11,7 @@ import (
 
 type ClientShortNetworkLink struct {
 	Length     int
-	Buffer     [1024]byte
+	Buffer     []byte
 	MaxSize    int
 	ServerIp   string
 	ServerPort string
@@ -92,13 +92,15 @@ func (this *ClientShortNetworkLink) onMessageReceived() {
 	for {
 		//开启读取通道的时候才会读取
 		if this.isReadFlag == true {
-			buf, err := this.Reader.ReadByte()
+			buf := make([]byte, 1024)
+			n, err := this.Reader.Read(buf)
+
 			if err != nil {
 				log.Println(err)
 				this.Close()
 			} else {
-				this.Buffer[this.Length] = buf
-				this.Length++
+				this.Buffer = buf[:n]
+				this.Length = n
 			}
 		}
 	}
