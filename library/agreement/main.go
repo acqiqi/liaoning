@@ -27,7 +27,7 @@ type Obj struct {
 	DriverType    string //设备类型
 	DriverAddress string //ip 或者从站地址
 	DriverPort    string //端口号
-	SerialNo      int    //使用串口号 只针对使用串口协议
+	SerialNo      string //使用串口号 只针对使用串口协议
 	IsOpen        bool   //是否打开
 	PlcFlag       int
 	IAgreement

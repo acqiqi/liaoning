@@ -121,7 +121,7 @@ import (
 /// </list>
 
 type MelsecFxSerial struct {
-	SerialNo int //使用串口号 只针对使用串口协议
+	SerialNo string //使用串口号 只针对使用串口协议
 }
 
 func (this *MelsecFxSerial) InitDriver() (err error) {

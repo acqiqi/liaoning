@@ -5,6 +5,7 @@ import (
 	"github.com/eclipse/paho.mqtt.golang"
 	"github.com/pkg/errors"
 	"log"
+	"vgateway/common"
 	"vgateway/library/agreement"
 	"vgateway/library/agreement/driver/siemenss7tcp"
 )
@@ -23,6 +24,16 @@ func SubscribeCallback(client mqtt.Client, msg mqtt.Message) {
 
 	data := msg.Payload()
 	str := string(data)
+
+	sub := new(SubscribeData)
+	if err := common.JsonDecode(str, &sub); err != nil {
+		log.Println("Subscribe Decode Error:" + err.Error())
+	}
+	//赋值当前的topic
+	sub.Topic = msg.Topic()
+	// 拉一个线程处理数据业务
+	go handleSubData(sub)
+	return
 
 	driver := new(agreement.Obj)                         //实例化工厂
 	driver.DriverType = agreement.DriverTypeSiemensS7Tcp //使用西门子TCP通讯协议
