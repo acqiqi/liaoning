@@ -28,6 +28,7 @@ func SubscribeCallback(client mqtt.Client, msg mqtt.Message) {
 	sub := new(SubscribeData)
 	if err := common.JsonDecode(str, &sub); err != nil {
 		log.Println("Subscribe Decode Error:" + err.Error())
+		return
 	}
 	//赋值当前的topic
 	sub.Topic = msg.Topic()

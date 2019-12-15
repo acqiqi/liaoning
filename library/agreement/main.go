@@ -24,12 +24,12 @@ type IAgreement interface {
 }
 
 type Obj struct {
-	DriverType    string //设备类型
-	DriverAddress string //ip 或者从站地址
-	DriverPort    string //端口号
-	SerialNo      string //使用串口号 只针对使用串口协议
-	IsOpen        bool   //是否打开
-	PlcFlag       int
+	DriverType    string `json:"driver_type"`    //设备类型
+	DriverAddress string `json:"driver_address"` //ip 或者从站地址
+	DriverPort    string `json:"driver_port"`    //端口号
+	SerialNo      string `json:"serial_no"`      //使用串口号 只针对使用串口协议
+	IsOpen        bool   `json:"is_open"`        //是否打开
+	PlcFlag       int    `json:"plc_flag"`
 	IAgreement
 }
 
