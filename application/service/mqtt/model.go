@@ -3,6 +3,8 @@ package mqtt
 import (
 	"errors"
 	"log"
+	"strconv"
+	"vgateway/common"
 )
 
 type PublishData struct {
@@ -24,10 +26,8 @@ type SubscribeData struct {
 	Msg       string            `json:"msg"`       //消息
 	Data      map[string]string `json:"data"`      //数据
 	Value     string            `json:"value"`     //值
-	ValueInt  int               `json:"value_int"`
-	ValFloat  float64           `json:"val_float"`
-	IsWait    bool              `json:"is_wait"` //是否等待数据反馈
-	Code      int               `json:"code"`    //0正常 非0异常
+	IsWait    bool              `json:"is_wait"`   //是否等待数据反馈
+	Code      int               `json:"code"`      //0正常 非0异常
 }
 
 // 配置模式
@@ -50,6 +50,17 @@ func (s *SubscribeData) Read() (err error) {
 
 // 写模式
 func (s *SubscribeData) Write() (err error) {
+	switch s.DataType {
+	case "bool":
+		value, err := strconv.Atoi(s.Value)
+		if err != nil {
+			return errors.New("value decode err")
+		}
+		val := common.If(value == 1, true, false)
+		if err := LibDriverOne.WriteBool(s.Data["addr"], val.(bool)); err != nil {
+			return err
+		}
+	}
 
 	return
 }
@@ -79,11 +90,20 @@ func (s *SubscribeData) Lib() (err error) {
 		LibDriverOne.DriverAddress = s.Data["driver_address"]
 		LibDriverOne.DriverPort = s.Data["driver_port"]
 		LibDriverOne.SerialNo = s.Data["serial_no"]
-		LibDriverOne.PlcFlag = s.ValueInt //特殊plc型号标识
+
+		plc_flag, err := strconv.Atoi(s.Data["plc_flag"])
+		if err != nil {
+			return err
+		}
+		log.Println("哈哈哈哈")
+		log.Println(plc_flag)
+		LibDriverOne.PlcFlag = plc_flag //特殊plc型号标识
 		log.Println(LibDriverOne)
 		if err := LibDriverOne.Init(); err != nil {
 			return err
 		}
+		LibDriverOne.InitDriver() //初始化设备
+
 	} else if s.DataType == "read" {
 		PublishCallbackSuccess(PublishData{
 			MessageId: s.MessageId,

@@ -107,3 +107,10 @@ func GetUserToken(token string) (uid int64) {
 		return uId
 	}
 }
+
+func If(b bool, t, f interface{}) interface{} {
+	if b {
+		return t
+	}
+	return f
+}

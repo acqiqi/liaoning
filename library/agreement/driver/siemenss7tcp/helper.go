@@ -141,10 +141,9 @@ func CalculateAddressStarted(address string) (base int32) {
 	}
 }
 
-var tcps *tcp.ClientShortNetworkLink = new(tcp.ClientShortNetworkLink)
-
 // tcp短连接通讯发送数据并接收
 func WriteShortTcpBytes(data []byte, ip string, port string) (base []byte, err error) {
+	var tcps *tcp.ClientShortNetworkLink = new(tcp.ClientShortNetworkLink)
 	//tcps := tcp.ClientShortNetworkLink{}
 	//tcps.Close()
 	tcps.ServerIp = ip

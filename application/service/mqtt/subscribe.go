@@ -31,7 +31,7 @@ func SubscribeCallback(client mqtt.Client, msg mqtt.Message) {
 		return
 	}
 	//赋值当前的topic
-	sub.Topic = msg.Topic()
+	//sub.Topic = msg.Topic()
 	// 拉一个线程处理数据业务
 	go handleSubData(sub)
 	return

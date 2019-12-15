@@ -2,6 +2,7 @@ package tcp
 
 import (
 	"bufio"
+	"encoding/hex"
 	"errors"
 	"fmt"
 	"log"
@@ -52,7 +53,9 @@ func (this *ClientShortNetworkLink) Write(data []byte) (err error) {
 	if this.IsOpen == false {
 		return errors.New("not open tcp")
 	}
-	log.Println(data)
+	//fmt.Printf("%x",data)
+	fmt.Println()
+	log.Println(hex.EncodeToString(data))
 	_, err = this.TCPConn.Write(data)
 	return
 }
@@ -63,7 +66,7 @@ func (this *ClientShortNetworkLink) Read() (data []byte, err error) {
 	}
 	this.Length = 0
 	this.isReadFlag = true
-	time.Sleep(time.Millisecond * 500)
+	time.Sleep(time.Millisecond * 100)
 	//获取数据
 	if this.Length > 0 {
 		//切片
@@ -98,6 +101,7 @@ func (this *ClientShortNetworkLink) onMessageReceived() {
 			if err != nil {
 				log.Println(err)
 				this.Close()
+				return
 			} else {
 				this.Buffer = buf[:n]
 				this.Length = n
@@ -108,8 +112,8 @@ func (this *ClientShortNetworkLink) onMessageReceived() {
 
 //关闭网络通道
 func (this *ClientShortNetworkLink) Close() {
-	this.TCPConn.CloseRead()
-	this.TCPConn.CloseWrite()
+	//this.TCPConn.CloseRead()
+	//this.TCPConn.CloseWrite()
 	this.TCPConn.Close()
 	this.IsOpen = false
 	this.Length = 0

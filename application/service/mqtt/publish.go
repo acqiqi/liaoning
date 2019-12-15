@@ -7,7 +7,7 @@ import (
 
 //发送消息
 func Publish(topic string, qos byte, payload string) {
-	Mqttclient.Publish(topic+"/sub", qos, false, payload)
+	Mqttclient.Publish(topic, qos, false, payload)
 }
 
 //返回错误信息

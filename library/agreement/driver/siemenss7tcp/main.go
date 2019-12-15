@@ -51,6 +51,7 @@ func (this *SiemensS7Tcp) InitDriver() (err error) {
 		plcHead1 = plcHead1_200
 		plcHead2 = plcHead2_200
 	default:
+		log.Println("not plc flag")
 		plcHead1[18] = 0
 		break
 	}
@@ -73,6 +74,7 @@ func (this *SiemensS7Tcp) WriteBool(address string, status bool) (err error) {
 		return
 	}
 	lehcallback := len(netb) - 1
+	log.Println(netb)
 	if netb[lehcallback] != 0xff {
 		return errors.New("not ok write")
 	}
