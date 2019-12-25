@@ -5,6 +5,8 @@ import (
 	"log"
 	"strconv"
 	"vgateway/common"
+	"vgateway/kernel/config"
+	"vgateway/library/agreement"
 )
 
 type PublishData struct {
@@ -57,7 +59,7 @@ func (s *SubscribeData) Write() (err error) {
 			return errors.New("value decode err")
 		}
 		val := common.If(value == 1, true, false)
-		if err := LibDriverOne.WriteBool(s.Data["addr"], val.(bool)); err != nil {
+		if err := agreement.LibDriverOne.WriteBool(s.Data["addr"], val.(bool)); err != nil {
 			return err
 		}
 	}
@@ -86,30 +88,49 @@ func (s *SubscribeData) Lock() (err error) {
 // Lib PLC协议配置
 func (s *SubscribeData) Lib() (err error) {
 	if s.DataType == "write" {
-		LibDriverOne.DriverType = s.Data["driver_type"]
-		LibDriverOne.DriverAddress = s.Data["driver_address"]
-		LibDriverOne.DriverPort = s.Data["driver_port"]
-		LibDriverOne.SerialNo = s.Data["serial_no"]
+		agreement.LibDriverOne.DriverType = s.Data["driver_type"]
+		agreement.LibDriverOne.DriverAddress = s.Data["driver_address"]
+		agreement.LibDriverOne.DriverPort = s.Data["driver_port"]
+		agreement.LibDriverOne.SerialNo = s.Data["serial_no"]
 
 		plc_flag, err := strconv.Atoi(s.Data["plc_flag"])
 		if err != nil {
 			return err
 		}
-		log.Println("哈哈哈哈")
-		log.Println(plc_flag)
-		LibDriverOne.PlcFlag = plc_flag //特殊plc型号标识
-		log.Println(LibDriverOne)
-		if err := LibDriverOne.Init(); err != nil {
+		agreement.LibDriverOne.PlcFlag = plc_flag //特殊plc型号标识
+
+		log.Println("标识")
+		log.Println(agreement.LibDriverOne)
+		if err := agreement.LibDriverOne.Init(); err != nil {
 			return err
 		}
-		LibDriverOne.InitDriver() //初始化设备
+
+		//初始化设备
+		if err := agreement.LibDriverOne.InitDriver(); err != nil {
+			return err
+		}
+
+		//保存配置文件
+		config.ConfigObject.Lib.DriverType = agreement.LibDriverOne.DriverType
+		config.ConfigObject.Lib.DriverAddress = agreement.LibDriverOne.DriverAddress
+		config.ConfigObject.Lib.DriverPort = agreement.LibDriverOne.DriverPort
+		config.ConfigObject.Lib.SerialNo = agreement.LibDriverOne.SerialNo
+		config.ConfigObject.Lib.PlcFlag = plc_flag //特殊plc型号标识
+		config.SaveConfig("lib")
+
+		PublishCallbackSuccess(PublishData{
+			MessageId: s.MessageId,
+			Topic:     s.Topic,
+			Type:      s.Type,
+			Data:      *agreement.LibDriverOne,
+		}, "success")
 
 	} else if s.DataType == "read" {
 		PublishCallbackSuccess(PublishData{
 			MessageId: s.MessageId,
 			Topic:     s.Topic,
 			Type:      s.Type,
-			Data:      *LibDriverOne,
+			Data:      *agreement.LibDriverOne,
 		}, "success")
 	} else {
 		return errors.New("datatype err")

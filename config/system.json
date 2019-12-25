@@ -1,1 +1,36 @@
-{"admin_user":"","admin_pwd":"mdzz"}
+{
+  "cache": {
+    "driver": "redis",
+    "prefix": "vk_",
+    "server_host": "127.0.0.1",
+    "server_port": 6379,
+    "server_username": "",
+    "server_password": "",
+    "files_path": ""
+  },
+  "database": {
+    "driver": "mysql",
+    "prefix": "vhake_",
+    "server_host": "127.0.0.1",
+    "server_port": 3306,
+    "server_username": "root",
+    "server_password": "root",
+    "server_name": "vhake_vuc"
+  },
+  "uploader": {
+    "driver": "qiniu",
+    "domain": "http://images.vhake.com/",
+    "ak": "rCdFT1tACyHNjgELAE-AGEdOpywb1xakSD0xWe41",
+    "sk": "UhPJ-lSM-mLu9SPozqrbxM1dzKlB2S_iNKrCdm_6",
+    "bucket": "www-vhake"
+  },
+  "sms": {
+    "driver": "luosimao",
+    "key": "key-8038fe9d1e3f6f5710c6df1205c6e5aa",
+    "prefix": "【Vhake】"
+  },
+  "email": {
+    "host": "77706579@qq.com",
+    "password": ""
+  }
+}

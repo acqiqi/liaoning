@@ -2,10 +2,9 @@ package mqtt
 
 import (
 	"log"
-	"vgateway/library/agreement"
 )
 
-var LibDriverOne = new(agreement.Obj)
+//var LibDriverOne = new(agreement.Obj)
 
 // 处理回调信息
 func handleSubData(data *SubscribeData) {

@@ -2,6 +2,8 @@ package agreement
 
 import (
 	"errors"
+	"fmt"
+	"vgateway/kernel/config"
 	"vgateway/library/agreement/driver/melsecfxserial"
 	"vgateway/library/agreement/driver/siemenss7tcp"
 )
@@ -33,9 +35,23 @@ type Obj struct {
 	IAgreement
 }
 
+var LibDriverOne = new(Obj)
+
 //初始化操作
 func init() {
-
+	LibDriverOne.DriverType = config.ConfigObject.Lib.DriverType
+	LibDriverOne.DriverAddress = config.ConfigObject.Lib.DriverAddress
+	LibDriverOne.DriverPort = config.ConfigObject.Lib.DriverPort
+	LibDriverOne.SerialNo = config.ConfigObject.Lib.SerialNo
+	LibDriverOne.PlcFlag = config.ConfigObject.Lib.PlcFlag
+	if err := LibDriverOne.Init(); err != nil {
+		fmt.Println("初次初始化协议驱动失败：" + err.Error())
+		return
+	}
+	if err := LibDriverOne.InitDriver(); err != nil {
+		fmt.Println("初次初始化协议驱动失败2：" + err.Error())
+		return
+	}
 }
 
 //初始化

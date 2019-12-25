@@ -1,0 +1,7 @@
+{
+  "driver_type": "SiemensS7Tcp",
+  "driver_address": "192.168.101.155",
+  "driver_port": "102",
+  "serial_no": "1",
+  "plc_flag": 5
+}

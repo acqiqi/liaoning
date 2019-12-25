@@ -23,6 +23,7 @@ func PublishCallbackErr(data SubscribeData, code int, msg string) {
 //返回成功信息
 func PublishCallbackSuccess(data PublishData, msg string) {
 	str := common.JsonEncode(data)
+	log.Println("朴实带她")
 	log.Println(str)
 	Publish(data.Topic, 1, str)
 }

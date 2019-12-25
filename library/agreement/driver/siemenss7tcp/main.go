@@ -43,7 +43,6 @@ func (this *SiemensS7Tcp) InitDriver() (err error) {
 		plcHead1[21] = 0
 		break
 	case S200Smart:
-		log.Println("?????")
 		plcHead1 = plcHead1_200smart
 		plcHead2 = plcHead2_200smart
 		break
