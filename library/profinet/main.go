@@ -1,11 +1,11 @@
-package agreement
+package profinet
 
 import (
 	"errors"
 	"fmt"
 	"vgateway/kernel/config"
-	"vgateway/library/agreement/driver/melsecfxserial"
-	"vgateway/library/agreement/driver/siemenss7tcp"
+	"vgateway/library/profinet/driver/melsecfxserial"
+	"vgateway/library/profinet/driver/siemenss7tcp"
 )
 
 const (
@@ -17,7 +17,7 @@ const (
 )
 
 //封装接口
-type IAgreement interface {
+type Iprofinet interface {
 	InitDriver() (err error)                                         //初始化
 	WriteBool(address string, status bool) (err error)               //写bool
 	ReadBool(address string, length uint) (status []bool, err error) //读bool
@@ -32,7 +32,7 @@ type Obj struct {
 	SerialNo      string `json:"serial_no"`      //使用串口号 只针对使用串口协议
 	IsOpen        bool   `json:"is_open"`        //是否打开
 	PlcFlag       int    `json:"plc_flag"`
-	IAgreement
+	Iprofinet
 }
 
 var LibDriverOne = new(Obj)
@@ -62,14 +62,14 @@ func (this *Obj) Init() (err error) {
 	case DriverTypeMelsecFxSerial:
 		driver := new(melsecfxserial.MelsecFxSerial)
 		driver.SerialNo = this.SerialNo
-		this.IAgreement = driver
+		this.Iprofinet = driver
 		break
 	case DriverTypeSiemensS7Tcp:
 		driver := new(siemenss7tcp.SiemensS7Tcp)
 		driver.DriverAddress = this.DriverAddress
 		driver.DriverPort = this.DriverPort
 		driver.PlcFlag = this.PlcFlag
-		this.IAgreement = driver
+		this.Iprofinet = driver
 	default:
 		return errors.New("设备类型不正确")
 	}

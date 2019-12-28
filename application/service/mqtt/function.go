@@ -4,7 +4,7 @@ import (
 	"log"
 )
 
-//var LibDriverOne = new(agreement.Obj)
+//var LibDriverOne = new(profinet.Obj)
 
 // 处理回调信息
 func handleSubData(data *SubscribeData) {

@@ -1,4 +1,4 @@
-package agreement
+package profinet
 
 import (
 	"encoding/hex"
